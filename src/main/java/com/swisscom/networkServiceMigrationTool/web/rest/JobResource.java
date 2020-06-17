@@ -21,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import javax.validation.Valid;
+import java.io.File;
 import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
@@ -29,7 +30,6 @@ import java.util.HashMap;
 
 /* Migration Tool back-end <--> Tool GUI -> the back-end will expose various APIs to trigger actions
 and provide data back for representation purposes */
-
 
 
 @RestController
@@ -41,7 +41,7 @@ public class JobResource {
     private static final Logger logger = LoggerFactory.getLogger(JobResource.class);
 
     @Autowired
-    @Qualifier(value="simpleNetworkServiceMapper")
+    @Qualifier(value = "simpleNetworkServiceMapper")
     private Job job;
 
     @Autowired
@@ -53,15 +53,12 @@ public class JobResource {
 
         Map<String, JobParameter> parameterMap = new HashMap<>();
 
-        if(StringUtils.isNotBlank(incomingBatchRequest.networkServicesSolutionDirectory) && StringUtils.isNotBlank(incomingBatchRequest.networkServicesSolutionDirectory)) {
-
-
-            String deviceConfigLocation = incomingBatchRequest.deviceConfigurationDirectory + incomingBatchRequest.fileName;
-            deviceConfigLocation = StringUtils.isEmpty(deviceConfigLocation) ? globalConstants.getDeviceConfigDir() : deviceConfigLocation;
-            parameterMap.put(Constants.JOB_PARAM_FILE_NAME, new JobParameter(deviceConfigLocation));
-            globalConstants.setDeviceConfigDir(deviceConfigLocation);
-
+        if (StringUtils.isNotBlank(incomingBatchRequest.deviceConfigurationDirectory) && StringUtils.isNotBlank(incomingBatchRequest.networkServicesSolutionDirectory)) {
             try {
+                String parameter = StringUtils.isNotBlank(incomingBatchRequest.fileName) ? incomingBatchRequest.deviceConfigurationDirectory + File.separator + incomingBatchRequest.fileName : incomingBatchRequest.deviceConfigurationDirectory;
+                parameterMap.put(Constants.JOB_PARAM_INPUT_FILE_NAME, new JobParameter(parameter));
+                parameterMap.put(Constants.JOB_PARAM_OUTPUT_DIR, new JobParameter(incomingBatchRequest.networkServicesSolutionDirectory));
+
                 JobExecution execution = jobLauncher.run(job, new JobParameters(parameterMap));
                 logger.info("JobId {}, JobStatus {}", execution.getJobId(), execution.getStatus().getBatchStatus());
                 JobResponse jobResponse = new JobResponse(execution.getJobId(), new Date(), execution.getStatus().getBatchStatus(), "Job triggered successfully");

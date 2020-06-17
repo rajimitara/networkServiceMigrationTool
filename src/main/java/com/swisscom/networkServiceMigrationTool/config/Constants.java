@@ -29,9 +29,11 @@ public class Constants {
      */
     public static final String SPRING_PROFILE_NO_LIQUIBASE = "no-liquibase";
 
-    public static final String JOB_NAME = "migrate-batch-loader";
+    public static final String JOB_NAME = "simpleNetworkServiceMapper";
 
-    public static final String JOB_PARAM_FILE_NAME = "migrate-batch-loader.fileName";
+    public static final String JOB_PARAM_INPUT_FILE_NAME = "migrate-batch-device-loader.fileName";
+
+    public static final String JOB_PARAM_OUTPUT_DIR = "migrate-batch-service-loader.directory";
 
     public static final String STEP_NAME = "migrate-batch-loader-step";
 

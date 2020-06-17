@@ -16,7 +16,6 @@ public class CustomItemProcessor implements ItemProcessor<DeviceModel, SelectedD
     @Autowired
     private NetworkServiceSuggestionService networkServiceSuggestionService;
 
-
     @Override
     public SelectedDevices process(DeviceModel deviceModel) {
         SelectedDevices selectedDevices = new SelectedDevices();

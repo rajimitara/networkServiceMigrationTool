@@ -5,6 +5,7 @@ import com.swisscom.networkServiceMigrationTool.model.DeviceModel;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -62,24 +63,19 @@ public class DeviceScraper {
 
     public static List<DeviceModel> scrapeTextFile(String txtFilePath) throws IOException {
         List<DeviceModel> deviceModels = new ArrayList<>();
-        File[] textFiles = new File[5];
-        if(txtFilePath.contains(".txt")) {
-            File file = new File(txtFilePath);
-            textFiles[0] = file;
-        }else {
-            textFiles = finder(txtFilePath, ".txt");
-        }
-        for (File file : textFiles) {
-            String fileName = String.valueOf(file);
+        List<File> file = Arrays.asList(new File(txtFilePath));
+        File[] textFiles = StringUtils.contains(txtFilePath,".txt") ? file.toArray(new File[0]) : finder(txtFilePath, ".txt");
+
+        for (File textFile : textFiles) {
+            String fileName = String.valueOf(textFile);
             Stream<String> lines = Files.lines(Paths.get(fileName));
             Map<String, String> resultMap =
                     lines.map(line -> line.split("="))
                             .collect(Collectors.toMap(line -> line[0], line -> line[1]));
             lines.close();
             final ObjectMapper mapper = new ObjectMapper();
-            DeviceModel deviceModel = new DeviceModel();
-            deviceModel = mapper.convertValue(resultMap, DeviceModel.class);
-            deviceModel.setFileName((file.getName().replaceAll(".txt","")));
+            DeviceModel deviceModel = mapper.convertValue(resultMap, DeviceModel.class);
+            deviceModel.setFileName((textFile.getName().replaceAll(".txt","")));
             deviceModels.add(deviceModel);
         }
         return deviceModels;
@@ -90,8 +86,7 @@ public class DeviceScraper {
         for (File file : finder(jsonFilePath, ".json")) {
             ObjectMapper mapper = new ObjectMapper();
             // Java object from JSON file
-            DeviceModel deviceModel = new DeviceModel();
-            deviceModel = mapper.readValue(file, DeviceModel.class);
+            DeviceModel deviceModel = mapper.readValue(file, DeviceModel.class);
             deviceModel.setFileName((file.getName().replaceAll(".json","")));
             deviceModels.add(deviceModel);
         }

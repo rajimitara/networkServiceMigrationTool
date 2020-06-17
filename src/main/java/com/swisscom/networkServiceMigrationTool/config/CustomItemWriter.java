@@ -6,13 +6,16 @@ import com.swisscom.networkServiceMigrationTool.model.DeviceAnalyserService;
 import com.swisscom.networkServiceMigrationTool.model.NetworkService;
 import com.swisscom.networkServiceMigrationTool.serviceModel.ServiceModel;
 import com.swisscom.networkServiceMigrationTool.serviceModel.TargetSolution;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManagerFactory;
+import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -23,11 +26,14 @@ import java.util.Map;
 @StepScope
 public class CustomItemWriter implements ItemWriter<SelectedDevices> {
 
-    public String outputPath;
+    @Autowired
+    GlobalConstants globalConstants;
 
     @Autowired
     EntityManagerFactory entityManagerFactory;
 
+    @Value("#{jobParameters['" + Constants.JOB_PARAM_OUTPUT_DIR + "']}")
+    private String networkServiceDir;
 
     @Autowired
     private ServiceModel serviceModel;
@@ -40,12 +46,13 @@ public class CustomItemWriter implements ItemWriter<SelectedDevices> {
         JpaItemWriter<DeviceAnalyserService> jpaItemWriter = new JpaItemWriter<>();
         jpaItemWriter.setEntityManagerFactory(entityManagerFactory);
         List<DeviceAnalyserService> deviceAnalyserServiceList = new ArrayList<>();
+        String networkServiceDir = StringUtils.isNotBlank(getNetworkServiceDir()) ? getNetworkServiceDir() : globalConstants.getNetworkServicesConfigDir();
         for (SelectedDevices selectedDevice : selectedDevices) {
             List<NetworkService> networkServices = selectedDevice.getSelectedDevices();
             if (networkServices != null) {
                 for (NetworkService networkService : networkServices) {
                     String outputFileName = selectedDevice.getFileName() + networkService.getFileNameExtension() + ".yaml";
-                    YamlWriter writer = new YamlWriter(new FileWriter(getOutputPath() + outputFileName));
+                    YamlWriter writer = new YamlWriter(new FileWriter(networkServiceDir + File.separator + outputFileName));
                     writer.getConfig().setClassTag("NetworkService", networkService.exhibitNaturalBehaviour());
                     writer.write(networkService);
                     writer.close();
@@ -79,11 +86,11 @@ public class CustomItemWriter implements ItemWriter<SelectedDevices> {
     }
 
 
-    public String getOutputPath() {
-        return outputPath;
+    public String getNetworkServiceDir() {
+        return networkServiceDir;
     }
 
-    public void setOutputPath(String outputPath) {
-        this.outputPath = outputPath;
+    public void setNetworkServiceDir(String networkServiceDir) {
+        this.networkServiceDir = networkServiceDir;
     }
 }
