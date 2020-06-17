@@ -40,6 +40,5 @@ S1 < S2 < S3 < S4 ...
 
 Now optimised solution make sure that each of devices is mapped to a network service according to service model or higher . 
 
-
-
+DeviceAnalyserService holds this optimised target Solution. 
 
