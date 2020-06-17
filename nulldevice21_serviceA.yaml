@@ -1,0 +1,4 @@
+!NetworkService
+deviceId: uuid21
+parameters: 
+   paramA1: value21_1

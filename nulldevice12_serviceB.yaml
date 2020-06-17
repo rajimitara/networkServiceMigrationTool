@@ -1,0 +1,4 @@
+!NetworkService
+configuration: 
+   configB2: value12_2
+device: id12

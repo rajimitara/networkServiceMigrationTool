@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:batch="http://www.springframework.org/schema/batch"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/batch
+    http://www.springframework.org/schema/batch/spring-batch-3.0.xsd
+    http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-4.2.xsd">
+
+    <import resource="spring-batch.xml"/>
+
+    <batch:job id="simpleNetworkServiceMapper" job-repository="jobRepository" parent="simpleJob">
+        <batch:step id="legacyDeviceAnalysis">
+            <batch:tasklet transaction-manager="transactionManager">
+                <batch:chunk reader="customItemReader" processor="customItemProcessor" writer="customItemWriter" commit-interval="2"/>
+            </batch:tasklet>
+        </batch:step>
+    </batch:job>
+
+</beans>

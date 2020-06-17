@@ -1,0 +1,5 @@
+!NetworkService
+deviceId: id11
+parameters: 
+   paramA1: value11_1
+   paramA2: 0

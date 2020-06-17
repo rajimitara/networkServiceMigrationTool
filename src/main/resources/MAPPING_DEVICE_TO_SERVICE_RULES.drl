@@ -1,0 +1,121 @@
+package com.company.flow.workflow.drools.rules
+
+import com.swisscom.networkServiceMigrationTool.drools.DeviceIdentifierMatchAnalysisResults;
+import com.swisscom.networkServiceMigrationTool.model.ShortlistedDeviceModels;
+import org.drools.core.util.StringUtils;
+import java.util.HashSet;
+import java.util.Date;
+import org.drools.core.util.StringUtils;
+import com.swisscom.networkServiceMigrationTool.model.NetworkServiceA;
+import com.swisscom.networkServiceMigrationTool.model.Parameters;
+import com.swisscom.networkServiceMigrationTool.model.Configuration;
+import com.swisscom.networkServiceMigrationTool.model.Conf;
+import com.swisscom.networkServiceMigrationTool.model.NetworkServiceB;
+import com.swisscom.networkServiceMigrationTool.model.NetworkServiceC;
+import com.swisscom.networkServiceMigrationTool.model.DeviceModel;
+import com.swisscom.networkServiceMigrationTool.model.ShortlistedDeviceModels;
+global com.swisscom.networkServiceMigrationTool.drools.DeviceModelIdentifierMatchAnalyser deviceModelIdentifierMatchAnalyser;
+global com.swisscom.networkServiceMigrationTool.drools.SelectedDevices selectedDevices;
+
+
+declare Device
+    modelList   : HashSet
+end
+
+rule "Choose a Model based on Identifier"
+dialect  "java"
+no-loop true
+    when
+         deviceModel : DeviceModel($deviceId : deviceId && !StringUtils.isEmpty($deviceId) || $uuid : uuid && !StringUtils.isEmpty($uuid))
+         $shortListedDeviceModels: ShortlistedDeviceModels() from deviceModelIdentifierMatchAnalyser.analyseIdentifierMatchCriteria(deviceModel)
+    then
+        Device device = new Device();
+        device.setModelList($shortListedDeviceModels.getShortlistedDeviceModels());
+        insert(device);
+        System.out.println("Identifier "+ $deviceId +" or "+ $uuid);
+        System.out.println("deviceModel param1 = "+ deviceModel.getParam1() + " param2 = "+ deviceModel.getParam2()  + " param3 = "+deviceModel.getParam3() );
+        System.out.println("DRL-SHORTLIST Then Choose a Model based on Identifier with Salience: 3001"+$shortListedDeviceModels.getShortlistedDeviceModels());
+	end
+
+rule "Create Model 1 Network service A"
+dialect  "java"
+    when
+        device :      Device(modelList contains "MODEL_ONE") &&
+        deviceModel : DeviceModel(!StringUtils.isEmpty(param1))
+    then
+       System.out.println("DRL-SALIENT Then Create Model 1 Network service A with Salience: 2999:");
+       NetworkServiceA $networkServiceA = new NetworkServiceA();
+       Parameters $parameters = new Parameters();
+       $networkServiceA.setDeviceId(deviceModel.getDeviceId());
+       $parameters.setParamA1(deviceModel.getParam1());
+       $parameters.setParamA2("0");
+       $networkServiceA.setParameters($parameters);
+       selectedDevices.addToSelectedDevices($networkServiceA);
+    end
+
+rule "Create Model 2 Network service A"
+dialect  "java"
+    when
+        device :      Device(modelList contains "MODEL_TWO")
+        deviceModel : DeviceModel(!StringUtils.isEmpty(param1) &&  StringUtils.isEmpty(param2))
+    then
+       System.out.println("DRL-SALIENT Then Create Model 2 Network service A with Salience: 2999:");
+       NetworkServiceA $networkServiceA = new NetworkServiceA();
+       Parameters $parameters = new Parameters();
+       $networkServiceA.setDeviceId(deviceModel.getUuid());
+       $parameters.setParamA1(deviceModel.getParam1());
+       $networkServiceA.setParameters($parameters);
+       selectedDevices.addToSelectedDevices($networkServiceA);
+    end
+
+
+rule "Create Model 1 Network service B"
+dialect  "java"
+no-loop true
+    when
+        device : Device(modelList contains "MODEL_ONE")
+        deviceModel : DeviceModel(!StringUtils.isEmpty(param2))
+    then
+       System.out.println("DRL-SALIENT Then Create Model 1 & 2 Network service B with Salience: 2999:");
+       NetworkServiceB $networkServiceB = new NetworkServiceB();
+       Configuration $configuration = new Configuration();
+       $networkServiceB.setDevice(deviceModel.getDeviceId());
+       $configuration.setConfigB1(deviceModel.getParam1());
+       $configuration.setConfigB2(deviceModel.getParam2());
+       $networkServiceB.setConfiguration($configuration);
+       selectedDevices.addToSelectedDevices($networkServiceB);
+    end
+
+rule "Create Model 2 Network service B"
+dialect  "java"
+no-loop true
+    when
+        device : Device(modelList contains "MODEL_TWO")
+        deviceModel : DeviceModel(!StringUtils.isEmpty(param2))
+    then
+       System.out.println("DRL-SALIENT Then Create Model 1 & 2 Network service B with Salience: 2999:");
+       NetworkServiceB $networkServiceB = new NetworkServiceB();
+       Configuration $configuration = new Configuration();
+       $networkServiceB.setDevice(deviceModel.getUuid());
+       $configuration.setConfigB1(deviceModel.getParam1());
+       $configuration.setConfigB2(deviceModel.getParam2());
+       $networkServiceB.setConfiguration($configuration);
+       selectedDevices.addToSelectedDevices($networkServiceB);
+    end
+
+
+rule "Create Model 2 Network service C"
+dialect  "java"
+    when
+        device : Device(modelList contains "MODEL_TWO")
+        deviceModel : DeviceModel(!StringUtils.isEmpty(param1) && StringUtils.isEmpty(param2) && !StringUtils.isEmpty(param3))
+    then
+       System.out.println("DRL-SALIENT Then Create Model 2 Network service C with Salience: 2999:");
+       NetworkServiceC $networkServiceC = new NetworkServiceC();
+       Conf $conf = new Conf();
+       $networkServiceC.setDev(deviceModel.getUuid());
+       $conf.setConfigC1(deviceModel.getParam1());
+       $conf.setConfigC2(deviceModel.getParam2());
+       $networkServiceC.setConf($conf);
+       selectedDevices.addToSelectedDevices($networkServiceC);
+    end
