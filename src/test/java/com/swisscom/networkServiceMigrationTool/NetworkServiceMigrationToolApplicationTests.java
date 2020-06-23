@@ -96,10 +96,8 @@ public class NetworkServiceMigrationToolApplicationTests {
                     reader.open(stepExecution.getExecutionContext());
                     while ((deviceModel = reader.read()) != null) {
                         assertNotNull(deviceModel);
-                        //assertEquals("uuid21", deviceModel.getUuid());
+                        assertEquals("uuid21", deviceModel.getUuid());
                         assertEquals("value21_1", deviceModel.getParam1());
-                        assertEquals("", deviceModel.getParam2());
-                        assertEquals("", deviceModel.getParam3());
                         numDeviceModel++;
                     }
                 } finally {

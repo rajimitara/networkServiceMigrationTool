@@ -9,8 +9,11 @@ import java.util.Map;
 
 import com.swisscom.networkServiceMigrationTool.model.DeviceModel;
 import com.swisscom.networkServiceMigrationTool.model.ShortlistedDeviceModels;
+import com.swisscom.networkServiceMigrationTool.serviceModel.TargetSolution;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class DeviceModelIdentifierMatchAnalyser {
@@ -18,6 +21,7 @@ public class DeviceModelIdentifierMatchAnalyser {
     private static final String DEFAULT_MODEL = "DEFAULT_MODEL";
     public static Map<String,DeviceModelMetrics> deviceAttributesMap;
 
+    private static final Logger logger = LoggerFactory.getLogger(DeviceModelIdentifierMatchAnalyser.class);
 
     /**
      * @param deviceIdentifier
@@ -35,11 +39,11 @@ public class DeviceModelIdentifierMatchAnalyser {
             List<String> setOfIdentifiers = eachDeviceModelMetrics.getIdentifierKeywords(); //deviceID ->M1 // uuid => M2
 
             for(String eachIdentiferFromDevice : setOfIdentifiers){
-                System.out.println("eachIdentiferFromDevice: ["+eachIdentiferFromDevice+"]");
+                logger.info("eachIdentiferFromDevice: ["+eachIdentiferFromDevice+"]");
 
                 if(StringUtils.containsIgnoreCase(deviceIdentifier, eachIdentiferFromDevice)){
 
-                    System.out.println("if(StringUtils.containsIgnoreCase: "+eachIdentiferFromDevice);
+                    logger.info("if(StringUtils.containsIgnoreCase: "+eachIdentiferFromDevice);
                     List<String> matchedIdentifier = new ArrayList<String>();
                     matchedIdentifier.add(eachIdentiferFromDevice);
 
@@ -65,11 +69,11 @@ public class DeviceModelIdentifierMatchAnalyser {
 
         //TODO : pull in  all Identifier fields of a device into a String.
         String deviceIdentifier = !StringUtils.isBlank(deviceModel.getDeviceId()) ? "deviceId" : "uuid";
-        System.out.println("deviceModel param1 = "+ deviceModel.getParam1() + " param2 = "+ deviceModel.getParam2()  + " param3 = "+deviceModel.getParam3() );
+        logger.info("deviceModel param1 = "+ deviceModel.getParam1() + " param2 = "+ deviceModel.getParam2()  + " param3 = "+deviceModel.getParam3() );
         List<DeviceIdentifierMatchAnalysisResults> deviceIdentifierMatchAnalysisResults = pullAllEligibleDeviceMetrics(deviceIdentifier);
-        System.out.println("pullAllEligibleDeviceMetrics(deviceModel): "+ deviceIdentifierMatchAnalysisResults);
-        System.out.println("pullAllShortlistedDeviceModels: ");
-        ShortlistedDeviceModels ShortlistedDeviceModels = new ShortlistedDeviceModels(pullAllShortListedWorkflowNames(deviceIdentifierMatchAnalysisResults));
+        logger.info("pullAllEligibleDeviceMetrics(deviceModel): "+ deviceIdentifierMatchAnalysisResults);
+        logger.info("pullAllShortlistedDeviceModels: ");
+        ShortlistedDeviceModels ShortlistedDeviceModels = new ShortlistedDeviceModels(pullAllShortListedDeviceModelNames(deviceIdentifierMatchAnalysisResults));
         return ShortlistedDeviceModels;
     }
 
@@ -77,7 +81,7 @@ public class DeviceModelIdentifierMatchAnalyser {
      * @param keywordMatchResultSet
      * @return
      */
-    public HashSet<String> pullAllShortListedWorkflowNames(List<DeviceIdentifierMatchAnalysisResults> keywordMatchResultSet){
+    public HashSet<String> pullAllShortListedDeviceModelNames(List<DeviceIdentifierMatchAnalysisResults> keywordMatchResultSet){
 
         HashSet<String> shortListedDeviceModels = new HashSet<String>();
 
@@ -85,7 +89,7 @@ public class DeviceModelIdentifierMatchAnalyser {
             shortListedDeviceModels.add(eachKeyWordMatchResult.getMatchedDeviceModel());
         }
 
-        System.out.println("shortListedDeviceModels size: "+shortListedDeviceModels.size());
+        logger.info("shortListedDeviceModels size: "+shortListedDeviceModels.size());
 
         return shortListedDeviceModels;
 
@@ -94,26 +98,26 @@ public class DeviceModelIdentifierMatchAnalyser {
 
 
     /**
-     * @param shortListedWorkflows
-     * @param requestedWorkflow
+     * @param shortListedDevice
+     * @param requestedDeviceModel
      * @return
      */
-    public ShortlistedDeviceModels validateIfServiceExists(HashSet<String> shortListedWorkflows, String requestedWorkflow){
+    public ShortlistedDeviceModels validateIfServiceExists(HashSet<String> shortListedDevice, String requestedDeviceModel){
 
         boolean salienceRequestMatched = false;
-        ShortlistedDeviceModels finalisedWorkflowsModel = new ShortlistedDeviceModels();
+        ShortlistedDeviceModels finalisedDeviceModel = new ShortlistedDeviceModels();
 
-        System.out.println("CollectionUtils.isNotEmpty(shortListedWorkflows): "+CollectionUtils.isNotEmpty(shortListedWorkflows));
+        logger.info("CollectionUtils.isNotEmpty(shortListedDevice): "+CollectionUtils.isNotEmpty(shortListedDevice));
 
-        if(CollectionUtils.isNotEmpty(shortListedWorkflows)){
-            System.out.println("1shortListedWorkflows: "+shortListedWorkflows.size());
+        if(CollectionUtils.isNotEmpty(shortListedDevice)){
+            logger.info("1shortListedDevice: "+shortListedDevice.size());
 
-            if(shortListedWorkflows.contains(requestedWorkflow))
+            if(shortListedDevice.contains(requestedDeviceModel))
                 salienceRequestMatched = true;
         }
 
-        finalisedWorkflowsModel.setSalienceRequestMatched(salienceRequestMatched);
-        return finalisedWorkflowsModel;
+        finalisedDeviceModel.setSalienceRequestMatched(salienceRequestMatched);
+        return finalisedDeviceModel;
     }
 
     /**
@@ -124,9 +128,9 @@ public class DeviceModelIdentifierMatchAnalyser {
 
         initialiseDeviceModelAttributes();
 
-        String matchedWorkflowByKeyWord = "";
+        String matchedDeviceModelByKeyWord = "";
 
-        System.out.println("deviceIdentifiers: "+deviceIdentifiers);
+        logger.info("deviceIdentifiers: "+deviceIdentifiers);
 
         for (Map.Entry<String,DeviceModelMetrics> eachDeviceMapEntry : deviceAttributesMap.entrySet()) {
             String deviceName = eachDeviceMapEntry.getKey();
@@ -135,19 +139,19 @@ public class DeviceModelIdentifierMatchAnalyser {
             List<String> setOfIdentifiers = eachDeviceMetrics.getIdentifierKeywords();
 
             for(String eachIdentifierFromDevice : setOfIdentifiers){
-                System.out.println("eachIdentifierFromDevice:"+eachIdentifierFromDevice);
+                logger.info("eachIdentifierFromDevice:"+eachIdentifierFromDevice);
                 if(StringUtils.containsIgnoreCase(deviceIdentifiers, eachIdentifierFromDevice)){ //deviceId ,uuid match
 
-                    System.out.println("if(StringUtils.containsIgnoreCase");
-                    matchedWorkflowByKeyWord = deviceName;
-                    return matchedWorkflowByKeyWord;
+                    logger.info("if(StringUtils.containsIgnoreCase");
+                    matchedDeviceModelByKeyWord = deviceName;
+                    return matchedDeviceModelByKeyWord;
                 }
             }
 
         }
 
 
-        return matchedWorkflowByKeyWord;
+        return matchedDeviceModelByKeyWord;
     }
 
     //TODO : initialise from DB.
@@ -168,7 +172,7 @@ public class DeviceModelIdentifierMatchAnalyser {
 
         deviceModelIdentifier4.add("fid");
 
-        System.out.println("initialiseWorkflowAttributes() triggered");
+        logger.info("initialiseDeviceAttributes() triggered");
 
         deviceAttributesMap = new HashMap<String,DeviceModelMetrics>();
 

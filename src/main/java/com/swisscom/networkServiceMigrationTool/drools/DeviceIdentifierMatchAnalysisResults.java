@@ -12,11 +12,11 @@ public class DeviceIdentifierMatchAnalysisResults {
         super();
     }
 
-    public DeviceIdentifierMatchAnalysisResults(boolean matchFound, List<String> matchedKeywords, String matchedWorkflowName) {
+    public DeviceIdentifierMatchAnalysisResults(boolean matchFound, List<String> matchedKeywords, String matchedDeviceModel) {
         super();
         this.matchFound = matchFound;
         this.matchedIdentifier = matchedKeywords;
-        this.matchedDeviceModel = matchedWorkflowName;
+        this.matchedDeviceModel = matchedDeviceModel;
     }
 
 

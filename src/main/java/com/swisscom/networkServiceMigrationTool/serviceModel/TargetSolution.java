@@ -2,6 +2,8 @@ package com.swisscom.networkServiceMigrationTool.serviceModel;
 
 import com.swisscom.networkServiceMigrationTool.drools.SelectedDevices;
 import com.swisscom.networkServiceMigrationTool.model.NetworkService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +16,8 @@ public class TargetSolution {
     @Autowired
     private ServiceModel serviceModel;
 
+    private static final Logger logger = LoggerFactory.getLogger(TargetSolution.class);
+
     public Map<String, NetworkService> mapServiceModelAndDataModel(List<NetworkService> serviceModels, List<? extends SelectedDevices> selectedDevices, Map<String, NetworkService> migrateServicesInCiscoNetwork){
         List<NetworkService> targetSolution = new ArrayList<>();
         int i=0;
@@ -25,7 +29,7 @@ public class TargetSolution {
 
             targetSolution.add(bestNSInServiceModel);
             migrateServicesInCiscoNetwork.put(targetNetworkService.getDeviceModel(),bestNSInServiceModel);
-
+            logger.info("DeviceId {}, ServiceModelType {} , DataModelType {}  ",selectedDevice.getFileName(),targetNetworkService.deviceModelServiceType(),bestNSInServiceModel.deviceModelServiceType());
         }
 
         return migrateServicesInCiscoNetwork;

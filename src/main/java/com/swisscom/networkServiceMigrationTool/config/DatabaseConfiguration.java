@@ -2,9 +2,7 @@ package com.swisscom.networkServiceMigrationTool.config;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import liquibase.spring.SpringLiquibase;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -22,8 +20,7 @@ import java.util.Properties;
 
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        value = "com.swisscom.networkServiceMigrationTool",
-        entityManagerFactoryRef = "entityManagerFactory")
+        value = "com.swisscom.networkServiceMigrationTool")
 @Configuration
 public class DatabaseConfiguration {
 
@@ -41,12 +38,7 @@ public class DatabaseConfiguration {
         config.setUsername(env.getProperty("spring.datasource.username"));
         config.setPassword(env.getProperty("spring.datasource.password"));
         config.setDriverClassName(env.getProperty("spring.datasource.driverClassName"));
-        //config.setMinimumIdle(env.getProperty("spring.datasource.min-idle",
-            //    Integer.class, 2));
-        //config.setMaximumPoolSize(env.getProperty("spring.datasource.max-active",
-          //      Integer.class, 100));
         config.setTransactionIsolation("TRANSACTION_READ_COMMITTED");
-        //config.setRegisterMbeans(true);
         return new HikariDataSource(config);
 
     }
@@ -62,15 +54,12 @@ public class DatabaseConfiguration {
                 new LocalContainerEntityManagerFactoryBean();
         emfBean.setDataSource(batchDataSource());
         emfBean.setPackagesToScan("com.swisscom.networkServiceMigrationTool");
-        //emfBean.setBeanName("batchEntityManagerFactory");
         emfBean.setJpaVendorAdapter(batchJpaVendorAdapter());
 
 
         Properties jpaProps = new Properties();
-        //jpaProps.put("hibernate.physical_naming_strategy",
-          //      env.getProperty("spring.jpa.hibernate.naming.physical-strategy"));
-        //jpaProps.put("hibernate.hbm2ddl.auto", env.getProperty(
-          //      "spring.jpa.hibernate.ddl-auto", "none"));
+        jpaProps.put("hibernate.hbm2ddl.auto", env.getProperty(
+                "spring.jpa.hibernate.ddl-auto", "none"));
         jpaProps.put("hibernate.jdbc.fetch_size", env.getProperty(
                 "spring.jpa.properties.hibernate.jdbc.fetch_size",
                 "200"));
@@ -102,21 +91,4 @@ public class DatabaseConfiguration {
         return jpaTransactionManager;
     }
 
-
-   /* @Bean
-    public SpringLiquibase liquibase(LiquibaseProperties liquibaseProperties) {
-        SpringLiquibase liquibase = new SpringLiquibase();
-        liquibase.setDataSource(batchDataSource());
-        //liquibase.setChangeLog("classpath:config/liquibase/master.xml");
-        liquibase.setContexts(liquibaseProperties.getContexts());
-        liquibase.setDefaultSchema(liquibaseProperties.getDefaultSchema());
-        liquibase.setDropFirst(liquibaseProperties.isDropFirst());
-        if (env.acceptsProfiles(Constants.SPRING_PROFILE_NO_LIQUIBASE)) {
-            liquibase.setShouldRun(false);
-        } else {
-            liquibase.setShouldRun(liquibaseProperties.isEnabled());
-            //log.debug("Configuring Liquibase");
-        }
-        return liquibase;
-    }*/
 }

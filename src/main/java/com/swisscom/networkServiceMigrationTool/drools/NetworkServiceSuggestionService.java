@@ -4,6 +4,8 @@ import com.esotericsoftware.yamlbeans.YamlWriter;
 import com.swisscom.networkServiceMigrationTool.model.*;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,8 @@ class NetworkServiceSuggestionService {
     @Autowired
     private KieContainer kieSalientNSContainer;
 
+    private static final Logger logger = LoggerFactory.getLogger(NetworkServiceSuggestionService.class);
+
     public NetworkServiceSuggestionService() {
         super();
     }
@@ -31,32 +35,17 @@ class NetworkServiceSuggestionService {
         ShortlistedDeviceModels shortlistedDeviceModels = new ShortlistedDeviceModels();
 
         KieSession kieShortListNSSession = createKIESession(kieShortListNSContainer);
-        //kieShortListNSSession.setGlobal("shortlistedDeviceModels",shortlistedDeviceModels);
 
         kieShortListNSSession.insert(deviceModel);
-        //kieShortListNSSession.setGlobal("deviceModel",deviceModel);
-        System.out.println("Firing kieShortListNSSession rulShortlistedDeviceModels now");
+        logger.info("Firing kieShortListNSSession rulShortlistedDeviceModels now");
 
-        //kieShortListNSSession.dispose();
+        logger.info("shortListedDeviceModel.getShortlistedDeviceModels(): "+shortlistedDeviceModels.getShortlistedDeviceModels());
 
-        System.out.println("shortListedWorkflowModel.getShortlistedWorkflows(): "+shortlistedDeviceModels.getShortlistedDeviceModels());
-
-        //KieSession kieSalientNSSession = createKIESession(kieSalientWFContainer);
         kieShortListNSSession.setGlobal("deviceModelIdentifierMatchAnalyser", deviceModelIdentifierMatchAnalyser);
         kieShortListNSSession.setGlobal("selectedDevices", selectedDevices);
-
-        //kieShortListNSSession.insert(shortListedWorkflowModel);
-        //kieShortListNSSession.insert(kieShortListNSSession);
-        System.out.println("Fired kieShortListNSSession rules now: "+kieShortListNSSession.fireAllRules());
-
-        //System.out.println("Fired kieShortListNSSession rules now: "+kieShortListNSSession.fireAllRules());
+        logger.info("Fired kieShortListNSSession rules now: "+kieShortListNSSession.fireAllRules());
         kieShortListNSSession.dispose();
 
-        //System.out.println("selectedDevices.getNetworkServiceTypes(): "+selectedDevices.getNetworkServiceTypes());
-        //DataModels dataModels = new DataModels();
-        //dataModels.setDeviceModels(selectedDevices.getNetworkServiceTypes());
-
-        //buildNetworkServiceYamlFiles(selectedDevices);
 
         return selectedDevices;
     }

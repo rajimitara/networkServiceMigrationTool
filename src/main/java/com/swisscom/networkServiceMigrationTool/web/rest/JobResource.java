@@ -20,7 +20,6 @@ import org.springframework.batch.core.JobParameters;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import javax.validation.Valid;
 import java.io.File;
 import java.util.Date;
 import java.util.Map;
@@ -49,7 +48,7 @@ public class JobResource {
 
 
     @PostMapping("/migrateDevices")
-    public ResponseEntity<JobResponse> downloadDeviceConfiguration(@RequestBody @Valid IncomingBatchRequest incomingBatchRequest) {
+    public ResponseEntity<JobResponse> downloadDeviceConfiguration(@RequestBody IncomingBatchRequest incomingBatchRequest) {
 
         Map<String, JobParameter> parameterMap = new HashMap<>();
 

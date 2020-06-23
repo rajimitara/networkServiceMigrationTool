@@ -1,4 +1,4 @@
-package com.company.flow.workflow.drools.rules
+package com.swisscom.networkServiceMigrationTool.drools.rules
 
 import com.swisscom.networkServiceMigrationTool.drools.DeviceIdentifierMatchAnalysisResults;
 import com.swisscom.networkServiceMigrationTool.model.ShortlistedDeviceModels;

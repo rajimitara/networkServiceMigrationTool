@@ -7,6 +7,8 @@ import com.swisscom.networkServiceMigrationTool.model.NetworkService;
 import com.swisscom.networkServiceMigrationTool.serviceModel.ServiceModel;
 import com.swisscom.networkServiceMigrationTool.serviceModel.TargetSolution;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.JpaItemWriter;
@@ -41,6 +43,8 @@ public class CustomItemWriter implements ItemWriter<SelectedDevices> {
     @Autowired
     private TargetSolution targetSolution;
 
+    private static final Logger logger = LoggerFactory.getLogger(CustomItemWriter.class);
+
     @Override
     public void write(List<? extends SelectedDevices> selectedDevices) throws Exception {
         JpaItemWriter<DeviceAnalyserService> jpaItemWriter = new JpaItemWriter<>();
@@ -56,9 +60,6 @@ public class CustomItemWriter implements ItemWriter<SelectedDevices> {
                     writer.getConfig().setClassTag("NetworkService", networkService.exhibitNaturalBehaviour());
                     writer.write(networkService);
                     writer.close();
-                    DeviceAnalyserService deviceAnalyserService = new DeviceAnalyserService();
-                    deviceAnalyserService.setDeviceModels(networkService.deviceModelServiceType());
-                    deviceAnalyserServiceList.add(deviceAnalyserService);
                 }
             }
         }
@@ -77,11 +78,10 @@ public class CustomItemWriter implements ItemWriter<SelectedDevices> {
             NetworkService networkService = entrySet.getValue();
             DeviceAnalyserService deviceAnalyserService = new DeviceAnalyserService();
             deviceAnalyserService.setDeviceId(device);
-            deviceAnalyserService.setDeviceId(device);
             deviceAnalyserService.setServiceModel(serviceModels.get(i++).deviceModelServiceType());
             deviceAnalyserService.setDeviceModels(networkService.deviceModelServiceType());
             deviceAnalyserServiceList.add(deviceAnalyserService);
-            System.out.println("DeviceID:"+ device + " to Network Service " + networkService.deviceModelServiceType());
+            logger.info("DeviceID:"+ device + " to Network Service " + networkService.deviceModelServiceType());
         }
     }
 
